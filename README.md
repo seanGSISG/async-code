@@ -45,7 +45,18 @@ A code agent task management system that provides parallel execution of AI-power
    ```bash
    cp server/.env.example server/.env
    ```
-   Edit `server/.env` and set your `ANTHROPIC_API_KEY`.
+
+   **Authentication Options:**
+
+   You can use either an API key OR your Anthropic subscription:
+
+   - **Option A: API Key** - Set `ANTHROPIC_API_KEY` in `server/.env`
+   - **Option B: Claude Code Subscription** ([#15](https://github.com/ObservedObserver/async-code/pull/15)) - Leave API key blank and configure via web UI:
+     1. Log in to Claude Code on your laptop: `claude auth login`
+     2. Copy contents of `~/.claude/.credentials.json`
+     3. Paste into Settings > User Credentials in the web interface
+
+     ![Claude Code Credentials](https://github.com/user-attachments/assets/5fe87d4b-2acb-4095-a373-f3ed9f423081)
 
    **For local development without authentication:**
    - Add `NEXT_PUBLIC_DISABLE_AUTH=true` to skip Supabase auth setup
@@ -89,6 +100,8 @@ See `db/README.md` for detailed authentication setup instructions.
 
 ```bash
 # server/.env
+
+# Anthropic API (optional if using Claude Code credentials via web UI)
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 
 # Supabase (required)
@@ -103,6 +116,8 @@ NEXT_PUBLIC_DISABLE_AUTH=true  # Set to false or omit for production
 FLASK_ENV=production
 FLASK_DEBUG=False
 ```
+
+**Note:** If `ANTHROPIC_API_KEY` is not set, the system will use Claude Code credentials configured in the web UI (Settings > User Credentials).
 
 
 ## Development
