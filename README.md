@@ -13,11 +13,12 @@ A code agent task management system that provides parallel execution of AI-power
 ## Key Features
 
 - 🤖 **Multi-Agent Support**: Run Claude Code and other AI agents in parallel
-- 🔄 **Parallel Task Management**: Execute multiple coding tasks simultaneously  
+- 🔄 **Parallel Task Management**: Execute multiple coding tasks simultaneously
 - 🌐 **Codex-Style Web UI**: Clean interface for managing agent tasks
 - 🔍 **Agent Comparison**: Compare outputs from different AI models
 - 🐳 **Containerized Execution**: Secure sandboxed environment for each task
 - 🔗 **Git Integration**: Automatic repository cloning, commits, and PR creation
+- 🔓 **Optional Authentication**: Skip auth setup for local development
 - **Selfhost**: Deploy your own parallel code agent platform.
 
 ## Architecture
@@ -44,7 +45,13 @@ A code agent task management system that provides parallel execution of AI-power
    ```bash
    cp server/.env.example server/.env
    ```
-   Edit `server/.env` and set your `ANTHROPIC_API_KEY`. If you are using Supabase, also set `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
+   Edit `server/.env` and set your `ANTHROPIC_API_KEY`.
+
+   **For local development without authentication:**
+   - Add `NEXT_PUBLIC_DISABLE_AUTH=true` to skip Supabase auth setup
+   - Run `db/init_supabase-local.sql` in Supabase SQL Editor for a mock user
+
+   **For production:** Set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and configure auth providers (see [Supabase Setup](#supabase-setup)).
 
 3. **Build and start the stack**
    ```bash
@@ -56,9 +63,18 @@ A code agent task management system that provides parallel execution of AI-power
 
 ## Supabase Setup
 
-1. Create a new project in the [Supabase](https://supabase.com) dashboard.
-2. Open the SQL editor and run `db/init_supabase.sql` to create the required tables.
-3. Grab your project URL, anon key and service role key from **Project Settings → API** and place them in `server/.env`.
+**Option A: Local Development (No Auth)**
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Run `db/init_supabase-local.sql` in SQL Editor (creates mock user)
+3. Add credentials to `server/.env` and set `NEXT_PUBLIC_DISABLE_AUTH=true`
+
+**Option B: Production (With Auth)**
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Run `db/init_supabase.sql` in SQL Editor
+3. Configure auth providers: **Authentication → Providers** (Email/GitHub/Google)
+4. Add credentials to `server/.env`
+
+See `db/README.md` for detailed authentication setup instructions.
 
 ## Usage
 
@@ -75,10 +91,13 @@ A code agent task management system that provides parallel execution of AI-power
 # server/.env
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 
-# Supabase
+# Supabase (required)
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Optional: Disable authentication for local development
+NEXT_PUBLIC_DISABLE_AUTH=true  # Set to false or omit for production
 
 # Flask configuration
 FLASK_ENV=production

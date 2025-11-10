@@ -31,8 +31,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        // Check if auth is disabled
+        const isAuthDisabled = process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true'
+
+        if (isAuthDisabled) {
+            // Create a mock user for development when auth is disabled
+            // Using a valid UUID format: 00000000-0000-0000-0000-000000000000
+            const mockUser = {
+                id: '00000000-0000-0000-0000-000000000000',
+                email: 'demo@localhost',
+                app_metadata: {},
+                user_metadata: {},
+                aud: 'authenticated',
+                created_at: new Date().toISOString(),
+            } as User
+
+            setUser(mockUser)
+            setLoading(false)
+            return
+        }
+
         const supabase = getSupabase()
-        
+
         // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session)

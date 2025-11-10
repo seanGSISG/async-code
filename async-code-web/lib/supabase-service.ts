@@ -5,6 +5,20 @@ export class SupabaseService {
     private static get supabase() {
         return getSupabase()
     }
+
+    // Helper to get user ID (handles auth disabled mode)
+    private static async getUserId(): Promise<string> {
+        const isAuthDisabled = process.env.NEXT_PUBLIC_DISABLE_AUTH === 'true'
+
+        if (isAuthDisabled) {
+            // Return mock user UUID when auth is disabled
+            return '00000000-0000-0000-0000-000000000000'
+        }
+
+        const { data: { user } } = await this.supabase.auth.getUser()
+        if (!user) throw new Error('No authenticated user')
+        return user.id
+    }
     // Project operations
     static async getProjects(): Promise<ProjectWithStats[]> {
         const { data, error } = await this.supabase
@@ -37,13 +51,12 @@ export class SupabaseService {
         repo_owner: string
         settings?: any
     }): Promise<Project> {
-        // Get current authenticated user
-        const { data: { user } } = await this.supabase.auth.getUser()
-        if (!user) throw new Error('No authenticated user')
+        // Get user ID (handles auth disabled mode)
+        const userId = await this.getUserId()
 
         const { data, error } = await this.supabase
             .from('projects')
-            .insert([{ ...projectData, user_id: user.id }])
+            .insert([{ ...projectData, user_id: userId }])
             .select()
             .single()
 
@@ -91,9 +104,8 @@ export class SupabaseService {
         limit?: number
         offset?: number
     }): Promise<Task[]> {
-        // Get current authenticated user
-        const { data: { user } } = await this.supabase.auth.getUser()
-        if (!user) throw new Error('No authenticated user')
+        // Get user ID (handles auth disabled mode)
+        const userId = await this.getUserId()
 
         let query = this.supabase
             .from('tasks')
@@ -106,7 +118,7 @@ export class SupabaseService {
                     repo_owner
                 )
             `)
-            .eq('user_id', user.id)
+            .eq('user_id', userId)
 
         if (projectId) {
             query = query.eq('project_id', projectId)
@@ -154,16 +166,15 @@ export class SupabaseService {
         agent?: string
         chat_messages?: ChatMessage[]
     }): Promise<Task> {
-        // Get current authenticated user
-        const { data: { user } } = await this.supabase.auth.getUser()
-        if (!user) throw new Error('No authenticated user')
+        // Get user ID (handles auth disabled mode)
+        const userId = await this.getUserId()
 
         const { data, error } = await this.supabase
             .from('tasks')
             .insert([{
                 ...taskData,
                 status: 'pending',
-                user_id: user.id,
+                user_id: userId,
                 chat_messages: taskData.chat_messages as any
             }])
             .select()
@@ -241,13 +252,13 @@ export class SupabaseService {
         github_token?: string
         preferences?: any
     }) {
-        const { data: { user } } = await this.supabase.auth.getUser()
-        if (!user) throw new Error('No authenticated user')
+        // Get user ID (handles auth disabled mode)
+        const userId = await this.getUserId()
 
         const { data, error } = await this.supabase
             .from('users')
             .update(updates)
-            .eq('id', user.id)
+            .eq('id', userId)
             .select()
             .single()
 

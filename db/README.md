@@ -168,28 +168,67 @@ CREATE INDEX idx_tasks_status ON public.tasks(status);
 
 ## Setup Instructions
 
-### 1. Initialize Database
+### Option A: Local Development (No Auth Required)
 
-Run the SQL script in your Supabase dashboard:
+For quick local development without setting up authentication:
 
-```bash
-# In Supabase SQL Editor, execute:
-psql -f db/init_supabase.sql
-```
+1. **Run the local development SQL script:**
+   ```bash
+   # In Supabase SQL Editor, copy and paste:
+   db/init_supabase-local.sql
+   ```
+   This creates a mock user (`demo@localhost`) with UUID `00000000-0000-0000-0000-000000000000`
 
-### 2. Enable Authentication
+2. **Set environment variable:**
+   ```bash
+   NEXT_PUBLIC_DISABLE_AUTH=true
+   ```
 
-Ensure you have authentication enabled in your Supabase project:
+3. **Start developing!** No sign-in required.
 
-```javascript
-// In your app
-import { createClient } from '@supabase/supabase-js'
+### Option B: Production Setup (With Real Authentication)
 
-const supabase = createClient(
-  'your-project-url',
-  'your-anon-key'
-)
-```
+For production or when you need real authentication:
+
+1. **Run the production SQL script:**
+   ```bash
+   # In Supabase SQL Editor, copy and paste:
+   db/init_supabase.sql
+   ```
+
+2. **Configure Authentication Providers in Supabase Dashboard:**
+
+   Go to: **Authentication → Providers**
+
+   **For Email/Password:**
+   - Enable "Email" provider
+   - Configure SMTP settings (or use Supabase's built-in email)
+   - Customize email templates (optional)
+
+   **For GitHub OAuth:**
+   - Create GitHub OAuth App at https://github.com/settings/developers
+   - Set callback URL to: `https://your-project.supabase.co/auth/v1/callback`
+   - Copy Client ID and Client Secret
+   - Enable "GitHub" provider in Supabase
+   - Paste credentials
+
+   **For Other Providers (Google, etc.):**
+   - Follow similar setup in Supabase dashboard
+
+3. **Set environment variables:**
+   ```bash
+   NEXT_PUBLIC_DISABLE_AUTH=false  # Enable real authentication
+   ```
+
+4. **Initialize Supabase client in your app:**
+   ```javascript
+   import { createClient } from '@supabase/supabase-js'
+
+   const supabase = createClient(
+     'your-project-url',
+     'your-anon-key'
+   )
+   ```
 
 ### 3. Environment Variables
 

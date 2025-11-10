@@ -23,9 +23,6 @@ RUN npm install
 # Copy the rest of the application code
 COPY async-code-web/ .
 
-# Copy the setup script
-COPY setup.sh ./setup.sh
-
 # Make the setup script executable
 RUN chmod +x ./setup.sh
 
