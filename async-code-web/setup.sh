@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # setup.sh - Sandbox environment setup script
+#
+# NOTE: This file is a copy of the root setup.sh
+# WHY: Docker volume mount (./async-code-web:/app) overwrites /app at runtime.
+#      If setup.sh only existed in project root, it would be missing after mount.
+#      Placing it here ensures it's included in the mounted volume.
+#
 echo "🚀 Starting sandbox environment setup..."
 
 # Set environment to development if not already set
