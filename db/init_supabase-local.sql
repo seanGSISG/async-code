@@ -35,11 +35,18 @@ CREATE TABLE public.users (
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
 -- Users can only view and edit their own profile
+-- For local dev: Allow access to mock user (00000000-0000-0000-0000-000000000000)
 CREATE POLICY "Users can view own profile" ON public.users
-  FOR SELECT USING (auth.uid() = id);
+  FOR SELECT USING (
+    auth.uid() = id OR
+    id = '00000000-0000-0000-0000-000000000000'::uuid
+  );
 
 CREATE POLICY "Users can update own profile" ON public.users
-  FOR UPDATE USING (auth.uid() = id);
+  FOR UPDATE USING (
+    auth.uid() = id OR
+    id = '00000000-0000-0000-0000-000000000000'::uuid
+  );
 
 -- Function to handle new user creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()

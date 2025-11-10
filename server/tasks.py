@@ -260,7 +260,17 @@ def validate_github_token():
         
         # Test token scopes
         rate_limit = g.get_rate_limit()
-        logger.info(f"📊 Rate limit info: {rate_limit.core.remaining}/{rate_limit.core.limit}")
+        try:
+            # Try new API first
+            if hasattr(rate_limit, 'rate'):
+                logger.info(f"📊 Rate limit info: {rate_limit.rate.remaining}/{rate_limit.rate.limit}")
+            # Fallback to old API
+            elif hasattr(rate_limit, 'core'):
+                logger.info(f"📊 Rate limit info: {rate_limit.core.remaining}/{rate_limit.core.limit}")
+            else:
+                logger.info(f"📊 Rate limit info available")
+        except Exception as e:
+            logger.warning(f"Could not get rate limit info: {e}")
         
         # If repo URL provided, test repo access
         repo_info = {}
